@@ -30,7 +30,7 @@ async function printPDF(pdfData, pages) {
     const loadingTask = pdfjsLib.getDocument({ data });
     return loadingTask.promise.then((pdf) => {
         numPages = pdf.numPages;
-        return new Array(numPages).fill(0).map((__, i) => {
+        const pagePromises = Array(numPages).fill(0).map((__, i) => {
             const pageNumber = i + 1;
             if (pages && pages.indexOf(pageNumber) == -1) {
                 return;
@@ -54,6 +54,8 @@ async function printPDF(pdfData, pages) {
                 return renderTask.promise.then(() => canvas);
             });
         });
+
+        return Promise.all(pagePromises);
     });
 }
 
