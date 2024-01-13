@@ -10,6 +10,12 @@ let numPages = 0;
 const outerMarginX = 100;
 const outerMarginY = 100;
 
+fabric.Object.prototype.set({
+    transparentCorners: false,
+    borderColor: '#ff00ff',
+    cornerColor: '#ff0000'
+});
+
 function readBlob(blob) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -38,13 +44,15 @@ async function printPDF(pdfData, pages) {
                     return;
                 }
                 return pdf.getPage(pageNumber).then((page) => {
-                    const resolution = 2.0833;
+                    const resolution = 4;
                     const viewport = page.getViewport({
                         scale: window.devicePixelRatio * resolution,
                     });
                     // Prepare canvas using PDF page dimensions
                     const canvas = document.createElement('canvas');
                     const context = canvas.getContext('2d');
+                    context.imageSmoothingEnabled = true;
+                    context.imageSmoothingQuality = 'high';
                     canvas.height = viewport.height;
                     canvas.width = viewport.width;
                     // Render PDF page into canvas context
