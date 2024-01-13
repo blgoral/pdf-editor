@@ -9,8 +9,11 @@ let docIndex = 0;
 let numPages = 0;
 let initialCanvasHeight = 0;
 let initialCanvasWidth = 0;
-const outerMarginX = 100;
-const outerMarginY = 100;
+let initialCanvasHeightWithOffset = 0;
+let initialCanvasWidthWithOffset = 0;
+let currentFactor = 0.5;
+const outerMarginX = 400;
+const outerMarginY = 400;
 
 fabric.Object.prototype.set({
     transparentCorners: false,
@@ -59,6 +62,10 @@ async function printPDF(pdfData, pages) {
                     canvas.width = viewport.width;
                     initialCanvasHeight = canvas.height;
                     initialCanvasWidth = canvas.width;
+                    initialCanvasHeightWithOffset =
+                        initialCanvasHeight + outerMarginY;
+                    initialCanvasWidthWithOffset =
+                        initialCanvasWidth + outerMarginX;
                     // Render PDF page into canvas context
                     const renderContext = {
                         canvasContext: context,
@@ -82,21 +89,54 @@ async function pdfToImage(pdfData, canvas) {
                 scaleY: scale,
             })
         );
-        showPage(docIndex);
     });
 }
 
 const canvas = (_this.__canvas = new fabric.Canvas('c'));
-const text = new fabric.Text('Upload PDF');
-document.querySelector('input').addEventListener('change', async (e) => {
-    text.set('text', 'loading...');
+
+function addMarginToCanvas() {
+    canvas.setWidth(initialCanvasWidthWithOffset);
+    canvas.setHeight(initialCanvasHeightWithOffset);
     canvas.requestRenderAll();
-    await pdfToImage(e.target.files[0], canvas);
-    canvas.remove(text);
+}
+
+document.querySelector('input').addEventListener('change', async (e) => {
+    await displayPdf(e);
+    addMarginToCanvas();
+    drawBorderRectangle();
+    centerAllObjects();
+    zoomCanvasSmall();
+    canvas.requestRenderAll();
+    showPage(docIndex);
 });
 
+async function displayPdf(e) {
+    canvas.preserveObjectStacking = true;
+    const text = new fabric.Text('Upload PDF');
+    text.set('text', 'loading...');
+    await pdfToImage(e.target.files[0], canvas);
+    canvas.remove(text);
+    canvas.requestRenderAll();
+}
+
+function drawBorderRectangle() {
+    const rect = new fabric.Rect({
+        left: 0,
+        top: 0,
+        width: initialCanvasWidth,
+        height: initialCanvasHeight,
+        stroke: 'red',
+        strokeWidth: 3,
+        fill: 'transparent',
+        selectable: false,
+        evented: false,
+    });
+    canvas.add(rect);
+    rect.bringToFront();
+}
+
 function showPage(index) {
-    const pages = canvas.getObjects();
+    const pages = canvas.getObjects('image');
     pages.forEach((page, i) => {
         if (i === index) {
             page.visible = true;
@@ -110,7 +150,6 @@ function showPage(index) {
 
 document.getElementById('increaseIdx').onclick = increaseIndex;
 function increaseIndex() {
-    console.log(docIndex);
     if (docIndex < numPages - 1) {
         docIndex += 1;
         showPage(docIndex);
@@ -119,7 +158,6 @@ function increaseIndex() {
 
 document.getElementById('decreaseIdx').onclick = decreaseIndex;
 function decreaseIndex() {
-    console.log(docIndex);
     if (docIndex > 0) {
         docIndex -= 1;
         showPage(docIndex);
@@ -132,40 +170,121 @@ function getAllObjects() {
     console.log(console.log(objects));
 }
 
-document.getElementById('chopRight').onclick = chopRight;
-function chopRight() {
-    canvas.setWidth(canvas.width - 100);
-    const objects = canvas.getObjects();
-    objects.forEach((obj) => {
-        const currentLeft = obj.get('left');
-        const newLeft = currentLeft - 50;
-        console.log(newLeft);
-        obj.set({ left: newLeft });
+document.getElementById('chopCanvas').onclick = cropCanvas;
+
+function cropCanvas() {
+    zoomCanvasHuge();
+    canvas.setWidth(canvas.width - outerMarginY);
+    canvas.setHeight(canvas.height - outerMarginY);
+    const pages = canvas.getObjects('image');
+    pages.forEach((page) => {
+        const currentLeft = page.get('left');
+        const currentTop = page.get('top');
+        const newLeft = currentLeft - outerMarginY / 2;
+        const newTop = currentTop - outerMarginX / 2;
+        page.set({ left: newLeft, top: newTop });
     });
+    canvas.renderAll();
+}
+
+document.getElementById('unchopCanvas').onclick = uncropCanvas;
+function uncropCanvas() {
+    canvas.setWidth(canvas.width + outerMarginY);
+    canvas.setHeight(canvas.height + outerMarginY);
+    const pages = canvas.getObjects('image');
+    pages.forEach((page) => {
+        const currentLeft = page.get('left');
+        const currentTop = page.get('top');
+        const newLeft = currentLeft + outerMarginY / 2;
+        const newTop = currentTop + outerMarginX / 2;
+        page.set({ left: newLeft, top: newTop });
+    });
+    zoomCanvas(currentFactor);
+    canvas.renderAll();
 }
 
 document.getElementById('double').onclick = toggleZoom;
 function toggleZoom() {
-    if (canvas.getZoom() === 1) {
-        zoomCanvas(0.5);
+    if (canvas.getZoom() === 0.5) {
+        zoomCanvasSmall();
     } else {
-        zoomCanvas(1);
+        zoomCanvasActual();
     }
-    canvas.renderAll();
 }
 
 function zoomCanvas(factor) {
+    if (factor != 1) {
+        currentFactor = factor;
+    }
     canvas.setZoom(factor);
-    canvas.setHeight(initialCanvasHeight * factor);
-    canvas.setWidth(initialCanvasWidth * factor);
+    canvas.setHeight(initialCanvasHeightWithOffset * factor);
+    canvas.setWidth(initialCanvasWidthWithOffset * factor);
+    canvas.renderAll();
+}
+
+function zoomCanvasHuge() {
+    zoomCanvas(1);
+}
+
+function zoomCanvasActual() {
+    zoomCanvas(0.5);
+}
+
+function zoomCanvasSmall() {
+    zoomCanvas(0.25);
+}
+
+function zoomCanvasThumbnail() {
+    zoomCanvas(0.15);
+}
+
+function centerAllObjects() {
+    const objects = canvas.getObjects();
+    objects.forEach((obj) => {
+        canvas.viewportCenterObject(obj);
+    });
+}
+
+function offsetObjects() {
+    const objects = canvas.getObjects();
+    objects.forEach((obj) => {
+        obj.set({
+            left: obj.left + outerMarginX / 2,
+            top: obj.top + outerMarginY / 2,
+        });
+    });
+    canvas.renderAll();
+}
+
+function hideRectangles() {
+    const rectangles = canvas.getObjects('rect');
+    rectangles.forEach(rectangle => {
+        rectangle.visible = false
+    });
+    canvas.renderAll();
+}
+
+function showRectangles() {
+    const rectangles = canvas.getObjects('rect');
+    rectangles.forEach(rectangle => {
+        rectangle.visible = true
+    });
+    canvas.renderAll();
 }
 
 document.getElementById('download').onclick = saveImage;
 function saveImage() {
     canvas.discardActiveObject().renderAll();
+    hideRectangles();
+    cropCanvas();
     const image = canvas
-        .toDataURL('image/png')
+        .toDataURL({
+            format: 'image/png',
+            multiplier: 0.5,
+        })
         .replace('image/png', 'image/octet-stream');
+    uncropCanvas();
+    showRectangles();
     const link = document.createElement('a');
     const random = Math.floor(Math.random() * 1000);
     link.download = `my-image-${random}.png`;
