@@ -30,30 +30,32 @@ async function printPDF(pdfData, pages) {
     const loadingTask = pdfjsLib.getDocument({ data });
     return loadingTask.promise.then((pdf) => {
         numPages = pdf.numPages;
-        const pagePromises = Array(numPages).fill(0).map((__, i) => {
-            const pageNumber = i + 1;
-            if (pages && pages.indexOf(pageNumber) == -1) {
-                return;
-            }
-            return pdf.getPage(pageNumber).then((page) => {
-                const resolution = 2.0833;
-                const viewport = page.getViewport({
-                    scale: window.devicePixelRatio * resolution,
+        const pagePromises = Array(numPages)
+            .fill(0)
+            .map((__, i) => {
+                const pageNumber = i + 1;
+                if (pages && pages.indexOf(pageNumber) == -1) {
+                    return;
+                }
+                return pdf.getPage(pageNumber).then((page) => {
+                    const resolution = 2.0833;
+                    const viewport = page.getViewport({
+                        scale: window.devicePixelRatio * resolution,
+                    });
+                    // Prepare canvas using PDF page dimensions
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    // Render PDF page into canvas context
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport,
+                    };
+                    const renderTask = page.render(renderContext);
+                    return renderTask.promise.then(() => canvas);
                 });
-                // Prepare canvas using PDF page dimensions
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                // Render PDF page into canvas context
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport,
-                };
-                const renderTask = page.render(renderContext);
-                return renderTask.promise.then(() => canvas);
             });
-        });
 
         return Promise.all(pagePromises);
     });
