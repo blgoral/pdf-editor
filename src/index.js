@@ -5,6 +5,10 @@ import { fabric } from 'fabric';
 
 const Base64Prefix = 'data:application/pdf;base64,';
 const _this = Window;
+let docIndex = 0;
+let numPages = 0;
+const outerMarginX = 100;
+const outerMarginY = 100;
 
 function readBlob(blob) {
     return new Promise((resolve, reject) => {
@@ -25,7 +29,7 @@ async function printPDF(pdfData, pages) {
     // Using DocumentInitParameters object to load binary data.
     const loadingTask = pdfjsLib.getDocument({ data });
     return loadingTask.promise.then((pdf) => {
-        const numPages = pdf.numPages;
+        numPages = pdf.numPages;
         return new Array(numPages).fill(0).map((__, i) => {
             const pageNumber = i + 1;
             if (pages && pages.indexOf(pageNumber) == -1) {
@@ -62,6 +66,7 @@ async function pdfToImage(pdfData, canvas) {
                 scaleY: scale,
             })
         );
+        showPage(docIndex);
     });
 }
 
@@ -74,10 +79,53 @@ document.querySelector('input').addEventListener('change', async (e) => {
     canvas.remove(text);
 });
 
+function showPage(index) {
+    const pages = canvas.getObjects();
+    pages.forEach((page, i) => {
+        if (i === index) {
+            page.visible = true;
+        } else {
+            page.visible = false;
+        }
+    });
+    canvas.discardActiveObject();
+    canvas.renderAll();
+}
+
+document.getElementById('increaseIdx').onclick = increaseIndex;
+function increaseIndex() {
+    console.log(docIndex);
+    if (docIndex < numPages - 1) {
+        docIndex += 1;
+        showPage(docIndex);
+    }
+}
+
+document.getElementById('decreaseIdx').onclick = decreaseIndex;
+function decreaseIndex() {
+    console.log(docIndex);
+    if (docIndex > 0) {
+        docIndex -= 1;
+        showPage(docIndex);
+    }
+}
+
 document.getElementById('getObjects').onclick = getAllObjects;
 function getAllObjects() {
     const objects = canvas.getObjects();
     console.log(console.log(objects));
+}
+
+document.getElementById('chopRight').onclick = chopRight;
+function chopRight() {
+    canvas.setWidth(canvas.width - 100);
+    const objects = canvas.getObjects();
+    objects.forEach((obj) => {
+        const currentLeft = obj.get('left');
+        const newLeft = currentLeft - 50;
+        console.log(newLeft);
+        obj.set({ left: newLeft });
+    });
 }
 
 document.getElementById('scaleObjects').onclick = scaleAllObjects;
