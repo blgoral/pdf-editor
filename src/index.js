@@ -32,7 +32,7 @@ async function printPDF(pdfData, pages) {
                 return;
             }
             return pdf.getPage(pageNumber).then((page) => {
-                const resolution = 4;
+                const resolution = 2.0833;
                 const viewport = page.getViewport({
                     scale: window.devicePixelRatio * resolution,
                 });
@@ -87,9 +87,24 @@ function scaleAllObjects() {
         o.set({
             scaleX: 0.5,
             scaleY: 0.5,
-        })
+        });
         canvas.centerObject(o);
+        canvas.renderAll();
     });
+}
+
+document.getElementById('double').onclick = toggleZoom;
+function toggleZoom() {
+    if (canvas.getZoom() === 1) {
+        canvas.setZoom(0.5);
+        canvas.setWidth(canvas.width / 2);
+        canvas.setHeight(canvas.height / 2);
+    } else {
+        canvas.setZoom(1);
+        canvas.setWidth(canvas.width * 2);
+        canvas.setHeight(canvas.height * 2);
+    }
+    canvas.renderAll();
 }
 
 document.getElementById('download').onclick = saveImage;
