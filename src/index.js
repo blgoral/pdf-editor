@@ -1,4 +1,4 @@
-import "./styles/style.scss";
+import './styles/style.scss';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/build/pdf.worker.min.mjs';
 import { fabric } from 'fabric';
@@ -32,7 +32,7 @@ async function printPDF(pdfData, pages) {
                 return;
             }
             return pdf.getPage(pageNumber).then((page) => {
-                const resolution = 2;
+                const resolution = 4;
                 const viewport = page.getViewport({
                     scale: window.devicePixelRatio * resolution,
                 });
@@ -70,18 +70,37 @@ const text = new fabric.Text('Upload PDF');
 document.querySelector('input').addEventListener('change', async (e) => {
     text.set('text', 'loading...');
     canvas.requestRenderAll();
-    await Promise.all(pdfToImage(e.target.files[0], canvas));
+    await pdfToImage(e.target.files[0], canvas);
     canvas.remove(text);
 });
 
+document.getElementById('getObjects').onclick = getAllObjects;
+function getAllObjects() {
+    const objects = canvas.getObjects();
+    console.log(console.log(objects));
+}
+
+document.getElementById('scaleObjects').onclick = scaleAllObjects;
+function scaleAllObjects() {
+    const objects = canvas.getObjects();
+    objects.forEach((o) => {
+        o.set({
+            scaleX: 0.5,
+            scaleY: 0.5,
+        })
+        canvas.centerObject(o);
+    });
+}
+
 document.getElementById('download').onclick = saveImage;
-function saveImage(){
+function saveImage() {
     canvas.discardActiveObject().renderAll();
-    canvas.setWidth(500);
-    canvas.setHeight(500);
-    const image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+    const image = canvas
+        .toDataURL('image/png')
+        .replace('image/png', 'image/octet-stream');
     const link = document.createElement('a');
-    link.download = "my-image.png";
+    const random = Math.floor(Math.random() * 1000);
+    link.download = `my-image-${random}.png`;
     link.href = image;
     link.click();
-  }
+}
