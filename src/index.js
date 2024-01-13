@@ -3,6 +3,7 @@ import 'pdfjs-dist/build/pdf.worker.min.mjs';
 import { fabric } from 'fabric';
 
 const Base64Prefix = 'data:application/pdf;base64,';
+const _this = Window;
 
 function readBlob(blob) {
     return new Promise((resolve, reject) => {
@@ -30,9 +31,9 @@ async function printPDF(pdfData, pages) {
                 return;
             }
             return pdf.getPage(pageNumber).then((page) => {
-                //  retina scaling
+                const resolution = 2;
                 const viewport = page.getViewport({
-                    scale: window.devicePixelRatio,
+                    scale: window.devicePixelRatio * resolution,
                 });
                 // Prepare canvas using PDF page dimensions
                 const canvas = document.createElement('canvas');
@@ -63,7 +64,7 @@ async function pdfToImage(pdfData, canvas) {
     });
 }
 
-const canvas = (Window.__canvas = new fabric.Canvas('c'));
+const canvas = (_this.__canvas = new fabric.Canvas('c'));
 const text = new fabric.Text('Upload PDF');
 document.querySelector('input').addEventListener('change', async (e) => {
     text.set('text', 'loading...');
@@ -71,3 +72,13 @@ document.querySelector('input').addEventListener('change', async (e) => {
     await Promise.all(pdfToImage(e.target.files[0], canvas));
     canvas.remove(text);
 });
+
+document.getElementById('download').onclick = saveImage;
+function saveImage(){
+    const canvas = document.getElementById("c");
+    const image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+    const link = document.createElement('a');
+    link.download = "my-image.png";
+    link.href = image;
+    link.click();
+  }
