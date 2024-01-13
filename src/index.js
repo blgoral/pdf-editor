@@ -7,13 +7,15 @@ const Base64Prefix = 'data:application/pdf;base64,';
 const _this = Window;
 let docIndex = 0;
 let numPages = 0;
+let initialCanvasHeight = 0;
+let initialCanvasWidth = 0;
 const outerMarginX = 100;
 const outerMarginY = 100;
 
 fabric.Object.prototype.set({
     transparentCorners: false,
     borderColor: '#ff00ff',
-    cornerColor: '#ff0000'
+    cornerColor: '#ff0000',
 });
 
 function readBlob(blob) {
@@ -44,9 +46,9 @@ async function printPDF(pdfData, pages) {
                     return;
                 }
                 return pdf.getPage(pageNumber).then((page) => {
-                    const resolution = 4;
+                    const multiplier = 4;
                     const viewport = page.getViewport({
-                        scale: window.devicePixelRatio * resolution,
+                        scale: window.devicePixelRatio * multiplier,
                     });
                     // Prepare canvas using PDF page dimensions
                     const canvas = document.createElement('canvas');
@@ -55,6 +57,8 @@ async function printPDF(pdfData, pages) {
                     context.imageSmoothingQuality = 'high';
                     canvas.height = viewport.height;
                     canvas.width = viewport.width;
+                    initialCanvasHeight = canvas.height;
+                    initialCanvasWidth = canvas.width;
                     // Render PDF page into canvas context
                     const renderContext = {
                         canvasContext: context,
@@ -140,31 +144,20 @@ function chopRight() {
     });
 }
 
-document.getElementById('scaleObjects').onclick = scaleAllObjects;
-function scaleAllObjects() {
-    const objects = canvas.getObjects();
-    objects.forEach((o) => {
-        o.set({
-            scaleX: 0.5,
-            scaleY: 0.5,
-        });
-        canvas.centerObject(o);
-        canvas.renderAll();
-    });
-}
-
 document.getElementById('double').onclick = toggleZoom;
 function toggleZoom() {
     if (canvas.getZoom() === 1) {
-        canvas.setZoom(0.5);
-        canvas.setWidth(canvas.width / 2);
-        canvas.setHeight(canvas.height / 2);
+        zoomCanvas(0.5);
     } else {
-        canvas.setZoom(1);
-        canvas.setWidth(canvas.width * 2);
-        canvas.setHeight(canvas.height * 2);
+        zoomCanvas(1);
     }
     canvas.renderAll();
+}
+
+function zoomCanvas(factor) {
+    canvas.setZoom(factor);
+    canvas.setHeight(initialCanvasHeight * factor);
+    canvas.setWidth(initialCanvasWidth * factor);
 }
 
 document.getElementById('download').onclick = saveImage;
