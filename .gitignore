@@ -6,3 +6,4 @@ dist/*.svg
 dist/*.ttf
 dist/*.woff
 dist/*.woff2
+.DS_Store
