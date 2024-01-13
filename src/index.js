@@ -1,3 +1,4 @@
+import "./styles/style.scss";
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/build/pdf.worker.min.mjs';
 import { fabric } from 'fabric';
@@ -75,7 +76,9 @@ document.querySelector('input').addEventListener('change', async (e) => {
 
 document.getElementById('download').onclick = saveImage;
 function saveImage(){
-    const canvas = document.getElementById("c");
+    canvas.discardActiveObject().renderAll();
+    canvas.setWidth(500);
+    canvas.setHeight(500);
     const image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
     const link = document.createElement('a');
     link.download = "my-image.png";
