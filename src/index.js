@@ -14,6 +14,7 @@ let initialCanvasWidthWithOffset = 0;
 let currentFactor = 0.5;
 const outerMarginX = 400;
 const outerMarginY = 400;
+const pix = window.devicePixelRatio;
 
 fabric.Object.prototype.set({
     transparentCorners: false,
@@ -51,7 +52,7 @@ async function printPDF(pdfData, pages) {
                 return pdf.getPage(pageNumber).then((page) => {
                     const multiplier = 4;
                     const viewport = page.getViewport({
-                        scale: window.devicePixelRatio * multiplier,
+                        scale: pix * multiplier,
                     });
                     // Prepare canvas using PDF page dimensions
                     const canvas = document.createElement('canvas');
@@ -60,8 +61,8 @@ async function printPDF(pdfData, pages) {
                     context.imageSmoothingQuality = 'high';
                     canvas.height = viewport.height;
                     canvas.width = viewport.width;
-                    initialCanvasHeight = canvas.height;
-                    initialCanvasWidth = canvas.width;
+                    initialCanvasHeight = canvas.height / pix;
+                    initialCanvasWidth = canvas.width / pix;
                     initialCanvasHeightWithOffset =
                         initialCanvasHeight + outerMarginY;
                     initialCanvasWidthWithOffset =
@@ -81,7 +82,7 @@ async function printPDF(pdfData, pages) {
 }
 
 async function pdfToImage(pdfData, canvas) {
-    const scale = 1 / window.devicePixelRatio;
+    const scale = 1 / pix;
     return (await printPDF(pdfData)).map(async (c) => {
         canvas.add(
             new fabric.Image(await c, {
@@ -105,7 +106,7 @@ document.querySelector('input').addEventListener('change', async (e) => {
     addMarginToCanvas();
     drawBorderRectangle();
     centerAllObjects();
-    zoomCanvasSmall();
+    // zoomCanvasSmall();
     canvas.requestRenderAll();
     showPage(docIndex);
 });
@@ -280,7 +281,7 @@ function saveImage() {
     const image = canvas
         .toDataURL({
             format: 'image/png',
-            multiplier: 0.5,
+            multiplier: 1,
         })
         .replace('image/png', 'image/octet-stream');
     uncropCanvas();
