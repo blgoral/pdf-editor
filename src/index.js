@@ -106,7 +106,7 @@ document.querySelector('input').addEventListener('change', async (e) => {
     addMarginToCanvas();
     drawBorderRectangle();
     centerAllObjects();
-    // zoomCanvasSmall();
+    zoomCanvasSmall();
     canvas.requestRenderAll();
     showPage(docIndex);
 });
@@ -244,17 +244,6 @@ function centerAllObjects() {
     objects.forEach((obj) => {
         canvas.viewportCenterObject(obj);
     });
-}
-
-function offsetObjects() {
-    const objects = canvas.getObjects();
-    objects.forEach((obj) => {
-        obj.set({
-            left: obj.left + outerMarginX / 2,
-            top: obj.top + outerMarginY / 2,
-        });
-    });
-    canvas.renderAll();
 }
 
 function hideRectangles() {

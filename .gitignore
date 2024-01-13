@@ -1,2 +1,8 @@
 node_modules
-dist/main.js
+dist/*.js
+dist/*.txt
+dist/*.eot
+dist/*.svg
+dist/*.ttf
+dist/*.woff
+dist/*.woff2
