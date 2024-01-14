@@ -171,8 +171,6 @@ function getAllObjects() {
     console.log(console.log(objects));
 }
 
-document.getElementById('chopCanvas').onclick = cropCanvas;
-
 function cropCanvas() {
     zoomCanvasHuge();
     canvas.setWidth(canvas.width - outerMarginY);
@@ -188,7 +186,6 @@ function cropCanvas() {
     canvas.renderAll();
 }
 
-document.getElementById('unchopCanvas').onclick = uncropCanvas;
 function uncropCanvas() {
     canvas.setWidth(canvas.width + outerMarginY);
     canvas.setHeight(canvas.height + outerMarginY);
@@ -235,10 +232,6 @@ function zoomCanvasSmall() {
     zoomCanvas(0.25);
 }
 
-function zoomCanvasThumbnail() {
-    zoomCanvas(0.15);
-}
-
 function centerAllObjects() {
     const objects = canvas.getObjects();
     objects.forEach((obj) => {
@@ -248,16 +241,16 @@ function centerAllObjects() {
 
 function hideRectangles() {
     const rectangles = canvas.getObjects('rect');
-    rectangles.forEach(rectangle => {
-        rectangle.visible = false
+    rectangles.forEach((rectangle) => {
+        rectangle.visible = false;
     });
     canvas.renderAll();
 }
 
 function showRectangles() {
     const rectangles = canvas.getObjects('rect');
-    rectangles.forEach(rectangle => {
-        rectangle.visible = true
+    rectangles.forEach((rectangle) => {
+        rectangle.visible = true;
     });
     canvas.renderAll();
 }
@@ -280,4 +273,30 @@ function saveImage() {
     link.download = `my-image-${random}.png`;
     link.href = image;
     link.click();
+}
+
+function createBase64() {
+    canvas.discardActiveObject().renderAll();
+    hideRectangles();
+    cropCanvas();
+    const image = canvas.toDataURL({
+        multiplier: 1,
+    });
+    uncropCanvas();
+    showRectangles();
+    return image;
+}
+
+document.getElementById('dumpBase64').onclick = dumpBase64;
+function dumpBase64() {
+    const pages = canvas.getObjects('image');
+    const outputArea = document.getElementById('outputArea');
+    pages.forEach((_, i) => {
+        showPage(i);
+        const base64 = createBase64();
+        const outputImage = document.createElement('img');
+        outputImage.classList.add('output-image');
+        outputImage.src = base64;
+        outputArea.appendChild(outputImage);
+    });
 }
