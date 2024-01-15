@@ -175,8 +175,8 @@ function showPage(index) {
 }
 
 function fileSelected() {
-    const body = document.querySelector("body");
-    body.classList.add("file-selected");
+    const body = document.querySelector('body');
+    body.classList.add('file-selected');
 }
 
 document.getElementById('next').onclick = increaseIndex;
