@@ -8,9 +8,15 @@ body {
     background-color: #4158D0;
     background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
     background-repeat: no-repeat;
+    background-attachment: fixed;
     min-height: 100vh;
     margin: 0;
     padding-top: 2rem;
+    font-family: sans-serif;
+}
+
+h1 {
+    color: $dark-purple;
 }
 
 section {
@@ -18,15 +24,26 @@ section {
     max-width: 900px;
     display: flex;
     justify-content: center;
+    gap: 8px;
+}
+
+.input-section {
+    flex-direction: column;
+    align-items: center;
 }
 
 .main-navigation {
-    max-width: 900px;
+    max-width: 200px;
     width: 100%;
-    border-radius: 15px;
+    border-radius: 5px;
     margin: 1rem auto;
     display: flex;
     justify-content: center;
+    align-items: center;
+    gap: 8px;
+    color: $white;
+    background-color: $dark-purple;
+    padding: 5px;
 }
 
 .canvas-container {
@@ -69,7 +86,7 @@ section {
     justify-content: center;
     gap: 8px;
     flex-wrap: wrap;
-    margin: 1rem auto 2rem;
+    margin: 2rem auto;
 }
 
 .output-image {
@@ -80,4 +97,49 @@ section {
 .btn {
     color: $white;
     background-color: $dark-purple;
+    padding: .8rem;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    &:hover {
+        background-color: $medium-purple;
+    }
+}
+
+.file-input {
+    &::file-selector-button {
+        color: $white;
+        background-color: $dark-purple;
+        padding: .8rem;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        &:hover {
+            background-color: $medium-purple;
+        }
+    }
+}
+
+.arrow {
+    color: $white;
+    background-color: transparent;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    &:hover {
+        color: $green;
+    }
+}
+
+.buttons-section, .main-navigation {
+    display: none;
+}
+
+.file-selected {
+    .input-section {
+        display: none;
+    }
+    .buttons-section, .main-navigation {
+        display: flex;
+    }
 }

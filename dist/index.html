@@ -3,21 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>All Your Base are Belong to Us</title>
+  <title>PDF Cropping Tool</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%2210 0 100 100%22><text y=%22.90em%22 font-size=%2290%22>🧂</text></svg>">
 </head>
 <body>
-  <section>
-    <input id="fileInput" type="file" accept="application/pdf">
+  <section class="input-section">
+    <h1>Select a PDF</h1>
+    <input id="fileInput" class="file-input" type="file" accept="application/pdf">
   </section>
-  <section>
-    <button id="double">Toggle Zoom</button>
-    <button id="download">Download Page</button>
-    <button id="dumpBase64">Dump Base 64</button>
+  <section class="buttons-section">
+    <button class="btn" id="double">Toggle Zoom</button>
+    <button class="btn" id="download">Download Page</button>
+    <button class="btn" id="dumpBase64">Output Base 64</button>
   </section>
   <nav class="main-navigation">
-    <button id="prev"><i class="icon-left-big"></i></button>
+    <button class="arrow" id="prev"><i class="icon-left-big"></i></button>
     <div class="page-number" id="pageNumber"></div>
-    <button id="next"><i class="icon-right-big"></i></button>
+    <button class="arrow" id="next"><i class="icon-right-big"></i></button>
   </nav>
   <canvas class="main-canvas" id="c"></canvas>
   <div class="loader"><div></div><div></div><div></div></div>

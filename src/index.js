@@ -28,6 +28,13 @@ document.addEventListener(
     false
 );
 
+function updateCounter() {
+    const pageNumberElement = document.getElementById('pageNumber');
+    const pageNumberString = `${docIndex + 1} / ${numPages}`;
+
+    pageNumberElement.innerText = pageNumberString;
+}
+
 fabric.Object.prototype.set({
     transparentCorners: false,
     borderColor: '#ff00ff',
@@ -67,9 +74,6 @@ async function printPDF(pdfData, pages) {
                         scale: pix * multiplier,
                     });
                     // Prepare canvas using PDF page dimensions
-                    const canvasContainer =
-                        document.querySelector('.canvas-container');
-                    canvasContainer.classList.add('visible');
                     const canvas = document.createElement('canvas');
                     const context = canvas.getContext('2d');
                     context.imageSmoothingEnabled = true;
@@ -117,12 +121,18 @@ function addMarginToCanvas() {
 }
 
 document.querySelector('input').addEventListener('change', async (e) => {
+    const canvasContainer = document.querySelector('.canvas-container');
+    canvasContainer.classList.add('visible');
+    setIsLoading();
     await displayPdf(e);
     addMarginToCanvas();
     drawBorderRectangle();
     centerAllObjects();
     zoomCanvasSmall();
+    updateCounter();
     canvas.requestRenderAll();
+    unsetIsLoading();
+    fileSelected();
     showPage(docIndex);
 });
 
@@ -164,10 +174,16 @@ function showPage(index) {
     canvas.renderAll();
 }
 
+function fileSelected() {
+    const body = document.querySelector("body");
+    body.classList.add("file-selected");
+}
+
 document.getElementById('next').onclick = increaseIndex;
 function increaseIndex() {
     if (docIndex < numPages - 1) {
         docIndex += 1;
+        updateCounter();
         showPage(docIndex);
     }
 }
@@ -176,6 +192,7 @@ document.getElementById('prev').onclick = decreaseIndex;
 function decreaseIndex() {
     if (docIndex > 0) {
         docIndex -= 1;
+        updateCounter();
         showPage(docIndex);
     }
 }
@@ -309,14 +326,25 @@ function unsetIsLoading() {
 document.getElementById('dumpBase64').onclick = dumpBase64;
 
 function dumpBase64() {
+    setTimeout(() => {
+        setIsLoading();
+    }, 0);
     const pages = canvas.getObjects('image');
     const outputArea = document.getElementById('outputArea');
+    outputArea.innerHTML = '';
+    const max = pages.length - 1;
     pages.forEach((_, i) => {
-        showPage(i);
-        const base64 = createBase64();
-        const outputImage = document.createElement('img');
-        outputImage.classList.add('output-image');
-        outputImage.src = base64;
-        outputArea.appendChild(outputImage);
+        setTimeout(() => {
+            showPage(i);
+            const base64 = createBase64();
+            const outputImage = document.createElement('img');
+            outputImage.classList.add('output-image');
+            outputImage.src = base64;
+            outputArea.appendChild(outputImage);
+            if (i === max) {
+                unsetIsLoading();
+                showPage(docIndex);
+            }
+        }, 0);
     });
 }
