@@ -6,16 +6,21 @@
   <title>All Your Base are Belong to Us</title>
 </head>
 <body>
-  <div>
-    <input type="file" accept="application/pdf">
-    <button id="getObjects">Get Objects</button>
+  <section>
+    <input id="fileInput" type="file" accept="application/pdf">
+  </section>
+  <section>
     <button id="double">Toggle Zoom</button>
-    <button id="increaseIdx">Increase Index</button>
-    <button id="decreaseIdx">Decrease Index</button>
+    <button id="download">Download Page</button>
     <button id="dumpBase64">Dump Base 64</button>
-    <button id="download">Download</button>
-  </div>
+  </section>
+  <nav class="main-navigation">
+    <button id="prev"><i class="icon-left-big"></i></button>
+    <div class="page-number" id="pageNumber"></div>
+    <button id="next"><i class="icon-right-big"></i></button>
+  </nav>
   <canvas class="main-canvas" id="c"></canvas>
+  <div class="loader"><div></div><div></div><div></div></div>
   <div id="outputArea" class="output-area"></div>
   <script src="main.js"></script>
 </body>

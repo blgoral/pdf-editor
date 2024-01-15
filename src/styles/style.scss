@@ -1,5 +1,6 @@
 @import 'colors';
 @import 'fontello';
+@import 'loader';
 html {
     height: auto;
 }
@@ -9,11 +10,29 @@ body {
     background-repeat: no-repeat;
     min-height: 100vh;
     margin: 0;
+    padding-top: 2rem;
+}
+
+section {
+    margin: 1rem auto;
+    max-width: 900px;
+    display: flex;
+    justify-content: center;
+}
+
+.main-navigation {
+    max-width: 900px;
+    width: 100%;
+    border-radius: 15px;
+    margin: 1rem auto;
+    display: flex;
+    justify-content: center;
 }
 
 .canvas-container {
     margin: 3rem auto 1rem;
     position: relative;
+    display: block;
     &:before {
         content: '';
         position: absolute;
@@ -22,6 +41,20 @@ body {
         top: 0;
         bottom: 0;
         background-color: rgba(255, 255, 255, 0.2);
+    }
+    &.loading {
+        & .main-canvas {
+            display: none;
+        }
+        &::before {
+            display: none;
+        }
+        .loader {
+            display: block;
+        }
+    }
+    &:not(.visible) {
+        display: none;
     }
 }
 
@@ -42,4 +75,9 @@ body {
 .output-image {
     width: 100%;
     max-width: 300px;
+}
+
+.btn {
+    color: $white;
+    background-color: $dark-purple;
 }

@@ -16,6 +16,18 @@ const outerMarginX = 400;
 const outerMarginY = 400;
 const pix = window.devicePixelRatio;
 
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+        const fileInput = document.getElementById('fileInput');
+        fileInput.value = null;
+        const canvasContainer = document.querySelector('.canvas-container');
+        const loader = document.querySelector('.loader');
+        canvasContainer.appendChild(loader);
+    },
+    false
+);
+
 fabric.Object.prototype.set({
     transparentCorners: false,
     borderColor: '#ff00ff',
@@ -55,6 +67,9 @@ async function printPDF(pdfData, pages) {
                         scale: pix * multiplier,
                     });
                     // Prepare canvas using PDF page dimensions
+                    const canvasContainer =
+                        document.querySelector('.canvas-container');
+                    canvasContainer.classList.add('visible');
                     const canvas = document.createElement('canvas');
                     const context = canvas.getContext('2d');
                     context.imageSmoothingEnabled = true;
@@ -149,7 +164,7 @@ function showPage(index) {
     canvas.renderAll();
 }
 
-document.getElementById('increaseIdx').onclick = increaseIndex;
+document.getElementById('next').onclick = increaseIndex;
 function increaseIndex() {
     if (docIndex < numPages - 1) {
         docIndex += 1;
@@ -157,18 +172,12 @@ function increaseIndex() {
     }
 }
 
-document.getElementById('decreaseIdx').onclick = decreaseIndex;
+document.getElementById('prev').onclick = decreaseIndex;
 function decreaseIndex() {
     if (docIndex > 0) {
         docIndex -= 1;
         showPage(docIndex);
     }
-}
-
-document.getElementById('getObjects').onclick = getAllObjects;
-function getAllObjects() {
-    const objects = canvas.getObjects();
-    console.log(console.log(objects));
 }
 
 function cropCanvas() {
@@ -287,7 +296,18 @@ function createBase64() {
     return image;
 }
 
+function setIsLoading() {
+    const canvasContainer = document.querySelector('.canvas-container');
+    canvasContainer.classList.add('loading');
+}
+
+function unsetIsLoading() {
+    const canvasContainer = document.querySelector('.canvas-container');
+    canvasContainer.classList.remove('loading');
+}
+
 document.getElementById('dumpBase64').onclick = dumpBase64;
+
 function dumpBase64() {
     const pages = canvas.getObjects('image');
     const outputArea = document.getElementById('outputArea');
