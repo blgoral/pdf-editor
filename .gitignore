@@ -6,4 +6,6 @@ dist/*.svg
 dist/*.ttf
 dist/*.woff
 dist/*.woff2
+dist/main.css
+dist/*.css.map
 .DS_Store
